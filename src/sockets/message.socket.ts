@@ -29,8 +29,7 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
 
             msg = await msg.save()
 
-            socket.join(to_id)
-
+            // socket.join(to_id)
             io.to(to_id).emit(
                 'recieve-message',
                 {
