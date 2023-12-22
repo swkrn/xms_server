@@ -15,7 +15,10 @@ app.use(express.json())
 
 
 import authRouter from './routes/auth.route'
+import messageRouter from './routes/message.route'
+
 app.use('/auth', authRouter)
+app.use('/message', messageRouter)
 
 
 const server = http.createServer(app)

@@ -29,7 +29,6 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
 
             msg = await msg.save()
 
-            // socket.join(to_id)
             io.to(to_id).emit(
                 'recieve-message',
                 {
@@ -42,6 +41,31 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
         catch (err) {
             console.log(err)
         }
-        
+    })
+
+    socket.on('read-message', async (data) => {
+        try {
+            const { reader_token, message_id } = JSON.parse(data)
+
+            const verfied = jwt.verify(reader_token, authConfig.passwordKey) as JwtPayload
+            if (!verfied) {
+                return
+            }
+
+            let msg = await Message.findById(message_id)
+            if (!msg) {
+                return
+            }
+
+            if (msg.to_id.toString() != verfied._id) {
+                return
+            }
+
+            msg.isRead = true
+            msg = await msg.save()
+        }
+        catch (err) {
+            console.log(err)
+        }
     })
 }
