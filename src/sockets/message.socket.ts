@@ -1,10 +1,11 @@
 import socketio from 'socket.io'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import mongoose from 'mongoose'
 
 import authConfig from '../configs/auth.config'
 
 import Message from '../models/message.model'
-
+import Pair from '../models/pair.model'
 
 export default (io: socketio.Server, socket: socketio.Socket) => {
 
@@ -20,7 +21,30 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
             }
 
             const from_id = verfied._id
+
+            // Users Pair
+            let pair = await Pair
+                .findOne()
+                .or([
+                    {fisrt_id: new mongoose.Types.ObjectId(from_id), second_id: new mongoose.Types.ObjectId(to_id)  },
+                    {fisrt_id: new mongoose.Types.ObjectId(to_id),   second_id: new mongoose.Types.ObjectId(from_id)},
+                ])
+                
+            if (!pair) {
+                pair = new Pair({
+                    fisrt_id: from_id,
+                    second_id: to_id,
+                    last_time: new Date()
+                });
+            }
+            else {
+                console.log('FUX')
+                pair.last_time = new Date()
+            }
+
+            await pair.save()
             
+            // New Message
             let msg = new Message({
                 from_id,
                 to_id,

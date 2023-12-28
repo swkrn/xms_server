@@ -13,8 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const auth_config_1 = __importDefault(require("../configs/auth.config"));
 const message_model_1 = __importDefault(require("../models/message.model"));
+const pair_model_1 = __importDefault(require("../models/pair.model"));
 exports.default = (io, socket) => {
     socket.on('send-message', (data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -25,6 +27,26 @@ exports.default = (io, socket) => {
                 return;
             }
             const from_id = verfied._id;
+            // Users Pair
+            let pair = yield pair_model_1.default
+                .findOne()
+                .or([
+                { fisrt_id: new mongoose_1.default.Types.ObjectId(from_id), second_id: new mongoose_1.default.Types.ObjectId(to_id) },
+                { fisrt_id: new mongoose_1.default.Types.ObjectId(to_id), second_id: new mongoose_1.default.Types.ObjectId(from_id) },
+            ]);
+            if (!pair) {
+                pair = new pair_model_1.default({
+                    fisrt_id: from_id,
+                    second_id: to_id,
+                    last_time: new Date()
+                });
+            }
+            else {
+                console.log('FUX');
+                pair.last_time = new Date();
+            }
+            yield pair.save();
+            // New Message
             let msg = new message_model_1.default({
                 from_id,
                 to_id,
