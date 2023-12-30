@@ -8,8 +8,21 @@ import mongoose from "mongoose";
 const getAllMessages = async (req: Request, res: Response) => {
     try {
         const { user_id } = req
+
+        const { with_id } = req.body
+        if (!with_id) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({
+                    msg: 'No with_id in json body'
+                })
+        }
+
         let messages = await Message
-            .find().or([{ from_id: user_id }, { to_id: user_id }])
+            .find().or([
+                { from_id: user_id, to_id: with_id }, 
+                { from_id: with_id, to: user_id }
+            ])
             .sort({ time: 1 })
             .lean()
 
@@ -27,14 +40,26 @@ const getAllMessages = async (req: Request, res: Response) => {
 
 const getMessages = async (req: Request, res: Response) => {
     try {
-        const { user_id } = req 
-        const { page } = req.params
+        const { user_id } = req
 
+        const { page } = req.params
         const limit = 5
         const skip = (parseInt(page) - 1) * limit
 
+        const { with_id } = req.body
+        if (!with_id) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({
+                    msg: 'No with_id in json body'
+                })
+        }
+
         let messages = await Message
-            .find().or([{ from_id: user_id }, { to_id: user_id }])
+            .find().or([
+                { from_id: user_id, to_id: with_id }, 
+                { from_id: with_id, to: user_id }
+            ])
             .sort({ time: -1 })
             .skip(skip)
             .limit(limit)
@@ -62,9 +87,22 @@ const getMessagesList = async (req: Request, res: Response) => {
             ])
             .populate('first_id', 'username')
             .populate('second_id', 'username')
+            .sort({last_time: -1})
             .lean()
 
-        return res.json(messagesList)
+        let msgList = []
+        for (let each of messagesList) {
+            msgList.push({
+                _id: each._id,
+                pair_user: (each.first_id._id.toString() !== req.user_id)
+                    ? each.first_id
+                    : each.second_id,
+                last_message: each.last_message,
+                last_time: each.last_time,
+            })
+        }
+
+        return res.json(msgList)
     }
     catch (err) {
         return res

@@ -34,11 +34,12 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
                 pair = new Pair({
                     first_id: from_id,
                     second_id: to_id,
+                    last_message: message,
                     last_time: new Date()
                 });
             }
             else {
-                console.log('FUX')
+                pair.last_message = message
                 pair.last_time = new Date()
             }
 

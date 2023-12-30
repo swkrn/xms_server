@@ -15,6 +15,10 @@ const pairSchema = new mongoose_1.default.Schema({
         ref: 'User',
         required: true,
     },
+    last_message: {
+        type: String,
+        required: true,
+    },
     last_time: {
         type: Date,
         required: true,

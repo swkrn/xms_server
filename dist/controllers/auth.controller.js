@@ -34,7 +34,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 msg: 'Password length must between 8-20 characters'
             });
         }
-        const existingUser = yield user_model_1.default.findOne({ username });
+        const existingUser = yield user_model_1.default.findOne({ username }).lean();
         if (existingUser) {
             return res
                 .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
@@ -63,7 +63,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
-        const user = yield user_model_1.default.findOne({ username });
+        const user = yield user_model_1.default.findOne({ username }).lean();
         if (!user) {
             return res
                 .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
@@ -80,7 +80,11 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         const token = jsonwebtoken_1.default.sign({ _id: user._id }, auth_config_1.default.passwordKey);
-        return res.json({ token, username: user.username });
+        return res.json({
+            token,
+            username: user.username,
+            id: user._id,
+        });
     }
     catch (err) {
         return res
@@ -91,7 +95,27 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 const isValidToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    return res.json(true);
+    try {
+        const user = yield user_model_1.default.findById(req.user_id).lean();
+        if (!user) {
+            return res
+                .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+                .json({
+                msg: 'User not found'
+            });
+        }
+        return res.json({
+            id: req.user_id,
+            username: user.username,
+        });
+    }
+    catch (err) {
+        return res
+            .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+            .json({
+            err: err
+        });
+    }
 });
 exports.default = {
     register,

@@ -38,11 +38,12 @@ exports.default = (io, socket) => {
                 pair = new pair_model_1.default({
                     first_id: from_id,
                     second_id: to_id,
+                    last_message: message,
                     last_time: new Date()
                 });
             }
             else {
-                console.log('FUX');
+                pair.last_message = message;
                 pair.last_time = new Date();
             }
             yield pair.save();

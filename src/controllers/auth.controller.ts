@@ -28,7 +28,7 @@ const register = async (req: Request, res: Response) => {
                 })
         }
         
-        const existingUser = await User.findOne({ username })
+        const existingUser = await User.findOne({ username }).lean()
         if (existingUser) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
@@ -64,7 +64,7 @@ const login = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body
 
-        const user = await User.findOne({ username })
+        const user = await User.findOne({ username }).lean()
         if (!user) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
@@ -84,7 +84,11 @@ const login = async (req: Request, res: Response) => {
 
         const token = jwt.sign({_id: user._id}, authConfig.passwordKey)
 
-        return res.json({ token, username: user.username })
+        return res.json({ 
+            token, 
+            username: user.username,
+            id: user._id,
+        })
     }
     catch (err) {
         return res
@@ -97,7 +101,29 @@ const login = async (req: Request, res: Response) => {
 
 
 const isValidToken = async (req: Request, res: Response) => {
-    return res.json(true);
+    try {
+        const user = await User.findById(req.user_id).lean();
+        if (!user) {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({
+                    msg: 'User not found'
+                })
+        }
+
+        return res.json({
+            id: req.user_id,
+            username: user.username,
+        });
+    }
+    catch (err) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({
+                err: err
+            })
+    }
+    
 }
 
 
