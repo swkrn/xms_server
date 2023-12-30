@@ -31,12 +31,12 @@ exports.default = (io, socket) => {
             let pair = yield pair_model_1.default
                 .findOne()
                 .or([
-                { fisrt_id: new mongoose_1.default.Types.ObjectId(from_id), second_id: new mongoose_1.default.Types.ObjectId(to_id) },
-                { fisrt_id: new mongoose_1.default.Types.ObjectId(to_id), second_id: new mongoose_1.default.Types.ObjectId(from_id) },
+                { first_id: new mongoose_1.default.Types.ObjectId(from_id), second_id: new mongoose_1.default.Types.ObjectId(to_id) },
+                { first_id: new mongoose_1.default.Types.ObjectId(to_id), second_id: new mongoose_1.default.Types.ObjectId(from_id) },
             ]);
             if (!pair) {
                 pair = new pair_model_1.default({
-                    fisrt_id: from_id,
+                    first_id: from_id,
                     second_id: to_id,
                     last_time: new Date()
                 });

@@ -13,7 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const message_model_1 = __importDefault(require("../models/message.model"));
+const pair_model_1 = __importDefault(require("../models/pair.model"));
 const http_status_codes_1 = require("http-status-codes");
+const mongoose_1 = __importDefault(require("mongoose"));
 const getAllMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { user_id } = req;
@@ -53,7 +55,29 @@ const getMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 });
+const getMessagesList = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let messagesList = yield pair_model_1.default
+            .find()
+            .or([
+            { first_id: new mongoose_1.default.Types.ObjectId(req.user_id) },
+            { second_id: new mongoose_1.default.Types.ObjectId(req.user_id) }
+        ])
+            .populate('first_id', 'username')
+            .populate('second_id', 'username')
+            .lean();
+        return res.json(messagesList);
+    }
+    catch (err) {
+        return res
+            .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+            .json({
+            err: err
+        });
+    }
+});
 exports.default = {
     getAllMessages,
     getMessages,
+    getMessagesList,
 };

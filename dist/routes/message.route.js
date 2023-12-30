@@ -9,4 +9,5 @@ const message_controller_1 = __importDefault(require("../controllers/message.con
 const router = (0, express_1.Router)();
 router.get('/all-messages', auth_middlewere_1.default.validateUser, message_controller_1.default.getAllMessages);
 router.get('/message/:page', auth_middlewere_1.default.validateUser, message_controller_1.default.getMessages);
+router.get('/messages-list', auth_middlewere_1.default.validateUser, message_controller_1.default.getMessagesList);
 exports.default = router;

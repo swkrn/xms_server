@@ -93,11 +93,16 @@ const login = async (req: Request, res: Response) => {
                 err: err
             }) 
     }
-    
+}
+
+
+const isValidToken = async (req: Request, res: Response) => {
+    return res.json(true);
 }
 
 
 export default {
     register,
     login,
+    isValidToken,
 }

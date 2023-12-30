@@ -26,13 +26,13 @@ export default (io: socketio.Server, socket: socketio.Socket) => {
             let pair = await Pair
                 .findOne()
                 .or([
-                    {fisrt_id: new mongoose.Types.ObjectId(from_id), second_id: new mongoose.Types.ObjectId(to_id)  },
-                    {fisrt_id: new mongoose.Types.ObjectId(to_id),   second_id: new mongoose.Types.ObjectId(from_id)},
+                    {first_id: new mongoose.Types.ObjectId(from_id), second_id: new mongoose.Types.ObjectId(to_id)  },
+                    {first_id: new mongoose.Types.ObjectId(to_id),   second_id: new mongoose.Types.ObjectId(from_id)},
                 ])
                 
             if (!pair) {
                 pair = new Pair({
-                    fisrt_id: from_id,
+                    first_id: from_id,
                     second_id: to_id,
                     last_time: new Date()
                 });

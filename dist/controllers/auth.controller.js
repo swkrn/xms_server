@@ -90,7 +90,11 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
+const isValidToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.json(true);
+});
 exports.default = {
     register,
     login,
+    isValidToken,
 };

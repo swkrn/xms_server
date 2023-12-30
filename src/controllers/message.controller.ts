@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import Message from "../models/message.model";
+import Pair from '../models/pair.model';
 import { StatusCodes } from "http-status-codes";
+import mongoose from "mongoose";
 
 
 const getAllMessages = async (req: Request, res: Response) => {
@@ -49,7 +51,32 @@ const getMessages = async (req: Request, res: Response) => {
     }
 }
 
+
+const getMessagesList = async (req: Request, res: Response) => {
+    try {
+        let messagesList = await Pair
+            .find()
+            .or([
+                {first_id: new mongoose.Types.ObjectId(req.user_id)}, 
+                {second_id: new mongoose.Types.ObjectId(req.user_id)}
+            ])
+            .populate('first_id', 'username')
+            .populate('second_id', 'username')
+            .lean()
+
+        return res.json(messagesList)
+    }
+    catch (err) {
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({
+                err: err
+            })
+    }    
+}
+
 export default {
     getAllMessages,
     getMessages,
+    getMessagesList,
 }

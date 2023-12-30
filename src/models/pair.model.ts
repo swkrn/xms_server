@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const pairSchema = new mongoose.Schema({
-    fisrt_id: {
+    first_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
